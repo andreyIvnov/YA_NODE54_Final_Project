@@ -6,7 +6,19 @@ const getDepartmentById = (id) => departmentsWS.getDepartmentBId(id);
 
 const addDepartment = async (depObj) => {
     try {
-        const depResult = await departmentsWS.addDepartment(depObj);
+        //#region Required fields validation
+        if(!depObj.name) return {error: true, description: "Name is a required field"};
+        //#endregion
+        
+        //#region Set field to create
+        const depResult = await departmentsWS.addDepartment({
+            ...depObj,
+            name: depObj.name,
+            manager: depObj["departmentid"] ? depObj["departmentid"] : null,
+        });
+        //#endregion
+        
+        //#region Set related/just created department to employee, based geted manager field 
         if (depObj.manager && depResult._id) {
             try {
                 const empResult = await employeesWS.updateEmployee(depObj.manager._id, { departmentid: { _id: depResult._id.toString(), ref: "department" } });
@@ -15,6 +27,8 @@ const addDepartment = async (depObj) => {
                 console.log("departmentService -> addDepartment.updateEmployee error. ", error);
             }
         }
+        //#endregion
+        
         return depResult;
     } catch (error) {
         console.log("departmentService -> addDepartment error. ", error);
@@ -45,8 +59,15 @@ const deleteDepartment = async (id) => {
         const department = await getDepartmentById(id);
         if (department && department.manager) {
             try {
-                const empResult = await employeesWS.updateEmployee(department.manager._id.toString(), { departmentid: null});
-                console.log("deleteDepartment -> Employee update result: \n", empResult);
+                const empsResult = await employeesWS.getAllEmployees({
+                    "departmentid" : id
+                });
+                console.log("deleteDepartment -> Employee update result: \n", empsResult);
+                if(empsResult && empsResult.length > 0){
+                    empsResult.forEach(async (empl) => {
+                        await employeesWS.updateEmployee(empl._id.toString(), { departmentid: null});
+                    })
+                }
             } catch (error) {
                 console.log("departmentService -> deleteDepartment.updateEmployee error: ", error);
             }

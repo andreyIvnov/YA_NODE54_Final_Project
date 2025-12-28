@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const departmentService = require('../services/departmentService');
+const userService = require('../services/userService');
 const jwt = require('jsonwebtoken');
 
 const router = Router();
@@ -7,8 +7,8 @@ const router = Router();
 router.get('/', async (req, res) => {
     try {
         const queries = req.query;
-        const departments = await departmentService.getAllDepartments(queries);
-        res.send(departments);
+        const getAllResult = await userService.getAllUsers(queries);
+        res.send(getAllResult);
     } catch (error) {
         res.status(500).send({ message: error.message, error: error ? error : ""});
     }
@@ -17,19 +17,19 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const department = await departmentService.getDepartmentById(id);
-        if(department && department._id) res.send(department);
-        res.status(400).send({ description: "No department found" });
+        const getByIdResult = await userService.getUserById(id);
+        if (getByIdResult && getByIdResult._id) res.send(fff);
+        res.status(400).send({ description: "No user found" });
     } catch (error) {
         res.status(500).send({ message: error.message, error: error ? error : ""});
     }
 })
 
-router.post('/', async (req, res) =>{
+router.post('/', async (req, res) => {
     try {
-        const depObj = req.body;
-        const result = await departmentService.addDepartment(depObj);
-        result && result._id ? res.status(201).send(result) : res.status(400).send({description: "Something went wrong"});
+        const newUserData = req.body;
+        const createUserResult = await userService.addUser(newUserData);
+        createUserResult && createUserResult._id ? res.status(201).send(createUserResult) : res.status(400).send({description: "Something went wrong"})
     } catch (error) {
         res.status(500).send({ message: error.message, error: error ? error : ""});
     }
@@ -38,9 +38,9 @@ router.post('/', async (req, res) =>{
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const depObj = req.body;
-        const result = await departmentService.updateDepartment(id, depObj);
-        result && result._id ? res.status(202).send(result) : res.status(400).send({description: "Something went wrong"});
+        const userObj = req.body;
+        const updateUserResult = await userService.updateUser(id, userObj);
+        updateUserResult && updateUserResult._id ? res.status(202).send(updateUserResult) : res.status(400).send({description: "Something went wrong"})
     } catch (error) {
         res.status(500).send({ message: error.message, error: error ? error : ""});
     }
@@ -49,11 +49,11 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await departmentService.deleteDepartment(id);
-        res.send(result);
+        const deleteResult = await userService.deleteUser(id);
+        res.send(deleteResult);
     } catch (error) {
         res.status(500).send({ message: error.message, error: error ? error : ""});
     }
 })
 
-module.exports = router
+module.exports = router;

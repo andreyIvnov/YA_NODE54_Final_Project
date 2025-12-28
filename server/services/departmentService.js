@@ -1,8 +1,8 @@
-const departmentsWS = require('../repositories/departmentsWS');
-const employeesWS = require('../repositories/employeesWS');
+const departmentsDB = require('../repositories/departmentsDB');
+const employeesWS = require('../repositories/employeesDB');
 
-const getAllDepartments = (filters) => departmentsWS.getAllDepartments(filters);
-const getDepartmentById = (id) => departmentsWS.getDepartmentBId(id);
+const getAllDepartments = (filters) => departmentsDB.getAllDepartments(filters);
+const getDepartmentById = (id) => departmentsDB.getDepartmentBId(id);
 
 const addDepartment = async (depObj) => {
     try {
@@ -11,7 +11,7 @@ const addDepartment = async (depObj) => {
         //#endregion
         
         //#region Set field to create
-        const depResult = await departmentsWS.addDepartment({
+        const depResult = await departmentsDB.addDepartment({
             ...depObj,
             name: depObj.name,
             manager: depObj["departmentid"] ? depObj["departmentid"] : null,
@@ -38,7 +38,7 @@ const addDepartment = async (depObj) => {
 
 const updateDepartment = async (id, depObj) => {
     try {
-        const depResult = await departmentsWS.updateDepartment(id, depObj);
+        const depResult = await departmentsDB.updateDepartment(id, depObj);
         if (depObj.manager && id) {
             try {
                 const empResult = await employeesWS.updateEmployee(depObj.manager._id, { departmentid: { _id: id, ref: "department" } });
@@ -72,7 +72,7 @@ const deleteDepartment = async (id) => {
                 console.log("departmentService -> deleteDepartment.updateEmployee error: ", error);
             }
         }
-        const mainResult = await departmentsWS.deleteDepartment(id);
+        const mainResult = await departmentsDB.deleteDepartment(id);
         return mainResult;
     } catch (error) {
         console.log("departmentService -> deleteDepartment error:\n ", error);

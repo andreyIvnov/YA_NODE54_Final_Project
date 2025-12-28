@@ -1,19 +1,27 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const userService = require('../services/userService');
 
 const router = express.Router();
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
     try {
-        const userData = {
-            _id : "321654987sssasd"
-        }; // NEED logic to find a user
+        const userData = req.body;
+        if (userData && userData.username && userData.email) {
+            const user = await userService.getRegisteredUser(userData.username, userData.email);
+            if (user && user.id) {
 
-        if (userData && userData._id) {
-            res.send(jwt.sign({ id: userData._id }, "some_secret_key", { expiresIn: '1h' }));
+            } else {
+                res.status(401).send({ message: "Unauthorized user" });
+            }
+        } else {
+            res.status(400).send({ message: `One of required fields (username OR email) is null or empty: ${JSON.stringify(userData)}` });
         }
+        // if (userData && userData._id) {
+        //     res.send({ token: jwt.sign({ id: userData._id }, "some_secret_key", { expiresIn: '1h' }) });
+        // }
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).send({ message: error.message, error: error ? error : ""});
     }
 })
 

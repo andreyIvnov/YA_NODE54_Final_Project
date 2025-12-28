@@ -1,10 +1,10 @@
-const employeesWS = require('../repositories/employeesWS');
-const departmentsWS = require('../repositories/departmentsWS');
+const employeesDB = require('../repositories/employeesDB');
+const departmentsDB = require('../repositories/departmentsDB');
 
-const getAllEmployees = (filters) => employeesWS.getAllEmployees(filters);
-const getEmployeeById = (id) => employeesWS.getEmployeeById(id);
+const getAllEmployees = (filters) => employeesDB.getAllEmployees(filters);
+const getEmployeeById = (id) => employeesDB.getEmployeeById(id);
 
-const addEmployee = (employeeObj) => employeesWS.addEmployee({ 
+const addEmployee = (employeeObj) => employeesDB.addEmployee({ 
     ...employeeObj,
     firstname: employeeObj["firstname"] ? employeeObj["firstname"] : null,
     lastname: employeeObj["lastname"] ? employeeObj["lastname"] : null,
@@ -12,23 +12,23 @@ const addEmployee = (employeeObj) => employeesWS.addEmployee({
     departmentid: employeeObj["departmentid"] ? employeeObj["departmentid"] : null,
 });
 
-const updateEmployee = (id, employeeObj) => employeesWS.updateEmployee(id, employeeObj);
+const updateEmployee = (id, employeeObj) => employeesDB.updateEmployee(id, employeeObj);
 
 const deleteEmployee = async (id) => {
     try {
         try {
-            const relatedDepartment = await departmentsWS.getAllDepartments({
+            const relatedDepartment = await departmentsDB.getAllDepartments({
                 "manager" : id
             });
 
             console.log("deleteEmployee -> Department update result: \n", relatedDepartment);
             if (relatedDepartment && relatedDepartment.length > 0) {
-                await departmentsWS.updateDepartment(relatedDepartment[0]._id.toString(), { manager: null });
+                await departmentsDB.updateDepartment(relatedDepartment[0]._id.toString(), { manager: null });
             }
         } catch (error) {
             console.log("employeeService -> deleteEmployee.updateDepartment error: ", error);
         }
-        const result = await employeesWS.deleteEmployee(id)
+        const result = await employeesDB.deleteEmployee(id)
         return result;
     } catch (error) {
         console.log("employeeService -> deleteEmployee error:\n", error);

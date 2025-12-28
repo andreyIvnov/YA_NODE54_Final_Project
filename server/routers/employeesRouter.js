@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
         const employees = await employeesService.getAllEmployees(queries);
         res.send(employees);
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).send({ message: error.message, error: error ? error : ""});
     }
 })
 
@@ -38,7 +38,7 @@ router.get('/:id', async (req, res) => {
         const employee = await employeesService.getEmployeeById(id);
         res.send(employee);
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).send({ message: error.message, error: error ? error : ""});
     }
 })
 
@@ -47,8 +47,9 @@ router.post('/', async (req, res) => {
         const employeeObj = req.body;
         const newEmployee = await employeesService.addEmployee(employeeObj);
         res.status(200).send(newEmployee);
+        newEmployee && newEmployee._id ? res.status(201).send(newEmployee) : res.status(400).send({description: "Something went wrong"});
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).send({ message: error.message, error: error ? error : ""});
     }
 })
 
@@ -57,9 +58,9 @@ router.put('/:id', async (req, res) => {
         const { id } = req.params;
         const employeeObj = req.body;
         const result = await employeesService.updateEmployee(id, employeeObj);
-        res.send(result);
+        result && result._id ? res.status(202).send(result) : res.status(400).send({description: "Something went wrong"});
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).send({ message: error.message, error: error ? error : ""});
     }
 })
 
@@ -69,7 +70,7 @@ router.delete('/:id', async (req, res) => {
         const result = await employeesService.deleteEmployee(id);
         res.send(result);
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).send({ message: error.message, error: error ? error : ""});
     }
 })
 

@@ -12,7 +12,7 @@ function App() {
   return (
     <>
       <div>
-        App:P
+        App:P <br />
         <button onClick={login}>Login</button>
       </div>
     </>

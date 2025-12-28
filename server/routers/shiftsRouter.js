@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const departmentService = require('../services/departmentService');
+const shiftService = require('../services/shiftService');
 const jwt = require('jsonwebtoken');
 
 const router = Router();
@@ -7,7 +7,7 @@ const router = Router();
 router.get('/', async (req, res) => {
     try {
         const queries = req.query;
-        const departments = await departmentService.getAllDepartments(queries);
+        const departments = await shiftService.getAllShifts(queries);
         res.send(departments);
     } catch (error) {
         res.status(500).send({ message: error.message, error: error ? error : ""});
@@ -17,19 +17,19 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const department = await departmentService.getDepartmentById(id);
-        if(department && department._id) res.send(department);
-        res.status(400).send({ description: "No department found" });
+        const shift = await shiftService.getShiftById(id);
+        if(shift && shift._id) res.send(shift);
+        res.status(400).send({ description: "No shift found" });
     } catch (error) {
         res.status(500).send({ message: error.message, error: error ? error : ""});
     }
 })
 
-router.post('/', async (req, res) =>{
+router.post('/', async (req, res) => {
     try {
-        const depObj = req.body;
-        const result = await departmentService.addDepartment(depObj);
-        result && result._id ? res.status(201).send(result) : res.status(400).send({description: "Something went wrong"});
+        const newShift = req.body;
+        const shiftCreateResult = await shiftService.addShift(newShift);
+        shiftCreateResult && shiftCreateResult._id ? res.status(201).send(shiftCreateResult) : res.status(400).send({description: "Something went wrong"});
     } catch (error) {
         res.status(500).send({ message: error.message, error: error ? error : ""});
     }
@@ -38,9 +38,9 @@ router.post('/', async (req, res) =>{
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const depObj = req.body;
-        const result = await departmentService.updateDepartment(id, depObj);
-        result && result._id ? res.status(202).send(result) : res.status(400).send({description: "Something went wrong"});
+        const shiftObj = req.body;
+        const updateShiftResult = await shiftService.updateShift(id, shiftObj);
+        updateShiftResult && updateShiftResult._id ? res.status(202).send(updateShiftResult) : res.status(400).send({description: "Something went wrong"});
     } catch (error) {
         res.status(500).send({ message: error.message, error: error ? error : ""});
     }
@@ -49,11 +49,11 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await departmentService.deleteDepartment(id);
-        res.send(result);
+        const deleteResult  = await shiftService.deleteShift(id);
+        res.send(deleteResult);
     } catch (error) {
         res.status(500).send({ message: error.message, error: error ? error : ""});
     }
 })
 
-module.exports = router
+module.exports = router;

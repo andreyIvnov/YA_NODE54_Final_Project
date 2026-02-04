@@ -8,20 +8,17 @@ router.post('/login', async (req, res) => {
     try {
         const userData = req.body;
         if (userData && userData.username && userData.email) {
-            const user = await userService.getRegisteredUser(userData.username, userData.email);
-            if (user && user.id) {
-
+            const result = await userService.getRegisteredUser(userData.username, userData.email);
+            if (result && result.data && result.data.length > 0 && result.data[0].id) {
+                res.send({ token: jwt.sign({ id: userData._id }, "some_secret_key", { expiresIn: '1h' }), user: result.data[0] });
             } else {
                 res.status(401).send({ message: "Unauthorized user" });
             }
         } else {
             res.status(400).send({ message: `One of required fields (username OR email) is null or empty: ${JSON.stringify(userData)}` });
         }
-        // if (userData && userData._id) {
-        //     res.send({ token: jwt.sign({ id: userData._id }, "some_secret_key", { expiresIn: '1h' }) });
-        // }
     } catch (error) {
-        res.status(500).send({ message: error.message, error: error ? error : ""});
+        res.status(500).send({ message: error.message, error: error ? error : {}});
     }
 })
 

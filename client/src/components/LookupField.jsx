@@ -5,7 +5,8 @@ import "C:/Users/crmdev4/Desktop/Lessons/NODE final project/client/src/styles/Lo
 function LookupField({ options, defaultValue, entityName = "record" }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState({});
+  // Initialize selected from defaultValue and allow null when cleared
+  const [selected, setSelected] = useState(defaultValue || null);
 
   const wrapperRef = useRef(null);
 
@@ -15,17 +16,23 @@ function LookupField({ options, defaultValue, entityName = "record" }) {
     }
   };
 
-  const noFocusMouseLogic = () => {
+  useEffect(() => {
+    // add listener on mount, remove on unmount
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }
-
-  useEffect(() => {
-    noFocusMouseLogic();
-    selectItem(defaultValue);
   }, []);
 
-  const filteredOptions = options.filter(o =>
+  // Update selected when defaultValue prop changes
+  useEffect(() => {
+    if (defaultValue) {
+      setSelected(defaultValue);
+      setSearch("");
+      setIsOpen(false);
+    }
+  }, [defaultValue]);
+
+  const safeOptions = options || [];
+  const filteredOptions = safeOptions.filter(o =>
     o.label.toLowerCase().includes(search.toLowerCase())
   );
 

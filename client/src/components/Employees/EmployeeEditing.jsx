@@ -8,38 +8,36 @@ import LookupField from '../LookupField'
 
 function EmployeeEditing() {
   const [state, dispatch] = useReducer(employeeEditingReducer, INITIAL_STATE)
-  const [defaultDept, setDefaultDept] = useState({})
+  // defaultDept should be null when not set so LookupField shows the input
+  const [defaultDept, setDefaultDept] = useState(null)
   
   const obj = useParams();
   const employees = useSelector((state) => state.employeeReducer.employees);
   const departments = useSelector((state) => state.departmentReducer.departments);
-  const shifts = useSelector((state) => state.shiftReducer.shifts);
+  // const shifts = useSelector((state) => state.shiftReducer.shifts);
 
   const initAllData = () => {
-    dispatch({
-      type: "INIT_DEPARTMENT_OPTIONS", payload: departments.map((dep) => {
-        return {
-          id: dep._id,
-          label: dep.name,
-        }
-      })
-    })
+    if (!departments || departments.length === 0 || !employees || employees.length === 0) return;
 
-    const indexOfCurrentEmpl = employees.findIndex(emp => emp._id === obj.id)
-    if (indexOfCurrentEmpl != -1) {
-      dispatch({ type: "INIT_CURRENT_EMPLOYEE", payload: employees[indexOfCurrentEmpl] })
-      if (employees[indexOfCurrentEmpl].departmentid ) {
-        const deptOfEmployee = state.departmentOptions.find(d => d.id === employees[indexOfCurrentEmpl].departmentid);
-        setDefaultDept(deptOfEmployee);
+    const depOptions = departments.map((dep) => ({ id: dep._id, label: dep.name }));
+    dispatch({ type: "INIT_DEPARTMENT_OPTIONS", payload: depOptions });
+
+    const currentEmployee = employees.find(emp => emp._1 === obj.id || emp._id === obj.id);
+    if (currentEmployee) {
+      dispatch({ type: "INIT_CURRENT_EMPLOYEE", payload: currentEmployee });
+      if (currentEmployee.departmentid) {
+        const deptOfEmployee = depOptions.find(d => d.id === currentEmployee.departmentid);
+        setDefaultDept(deptOfEmployee || null);
       }
-    }
-    else
+    } else {
       console.warn("NO_EMPLOYEE: ", `There is no employee with ID: ${obj.id}`)
+    }
   }
 
+  // re-run when departments or employees change (they often come from async Redux actions)
   useEffect(() => {
     initAllData();
-  }, [])
+  }, [departments, employees, obj.id])
 
   const saveChanges = () => {
     
